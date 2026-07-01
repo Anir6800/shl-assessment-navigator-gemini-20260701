@@ -2,7 +2,7 @@
 
 Conversational FastAPI service for recommending SHL Individual Test Solutions from a scraped catalog.
 
-The app also serves a browser UI at `/` and includes a generated PDF implementation report in `outputs/`.
+The app also serves a ChatGPT-style browser UI at `/` and includes a generated PDF implementation report in `outputs/`.
 
 ## What it does
 
@@ -14,7 +14,7 @@ The app also serves a browser UI at `/` and includes a generated PDF implementat
 
 ## API
 
-- `GET /` -> single-page UI
+- `GET /` -> ChatGPT-style single-page UI
 - `GET /health` -> `{"status":"ok"}`
 - `POST /chat`
 
