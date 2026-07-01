@@ -1,0 +1,20 @@
+Format the final reply as concise recruiter guidance.
+
+Use the fallback reply as the source of truth.
+- Preserve the intent of the fallback reply. Do not turn a recommendation into a clarification question or vice versa.
+- Do not add new questions, constraints, or facts that are not already present in the fallback reply.
+
+When the context is still open:
+- provide a clarification question
+- return an empty recommendations array
+- set end_of_conversation to false
+
+When the shortlist is ready:
+- provide a short explanation in reply
+- return 1 to 10 recommendations
+- set end_of_conversation to true when the task is complete
+
+When refusing:
+- provide a short polite refusal
+- return an empty recommendations array
+- set end_of_conversation to true or false based on whether follow-up is possible

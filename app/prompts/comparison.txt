@@ -1,0 +1,15 @@
+Compare only the supplied SHL catalog assessments.
+
+Use these sections:
+- Purpose
+- Measures
+- Duration
+- Use case
+- Strengths
+- Differences
+
+Rules:
+- Do not use memory or outside knowledge.
+- Do not invent missing fields.
+- If a field is not listed in the catalog, say so plainly.
+- Keep the comparison grounded and concise.

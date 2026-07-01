@@ -1,0 +1,8 @@
+{
+  "source_url": "https://tcp-us-prod-rnd.shl.com/voiceRater/shl-ai-hiring/shl_product_catalog.json",
+  "backend_name": "hybrid_tfidf",
+  "dimension": 256,
+  "item_count": 307,
+  "recommendable_count": 307,
+  "created_at": "2026-06-30T16:29:39.748455+00:00"
+}

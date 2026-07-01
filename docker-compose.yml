@@ -1,0 +1,14 @@
+services:
+  shl-assessment-recommender:
+    build: .
+    ports:
+      - "7860:7860"
+    environment:
+      PORT: 7860
+      SHL_LLM_PROVIDER: gemini
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      SHL_EMBEDDING_BACKEND: auto
+    volumes:
+      - ./data:/app/data
+      - ./vector_store:/app/vector_store
+    restart: unless-stopped

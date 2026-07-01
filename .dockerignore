@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+.playwright-cli/
+work/
+outputs/
+.git/
+*.pyc
+*.pyo
+*.pyd
+*.log
+tmp/

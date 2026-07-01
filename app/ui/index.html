@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SHL Assessment Navigator</title>
+  <style>
+    :root {
+      --bg: #07101d;
+      --bg-2: #0d1727;
+      --panel: rgba(10, 18, 31, 0.74);
+      --panel-strong: rgba(13, 23, 39, 0.94);
+      --border: rgba(154, 181, 223, 0.18);
+      --text: #eef4ff;
+      --muted: #98a8c4;
+      --accent: #f4a641;
+      --accent-2: #50d4c2;
+      --accent-3: #7aa7ff;
+      --shadow: 0 28px 72px rgba(0, 0, 0, 0.38);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(244, 166, 65, 0.16), transparent 22%),
+        radial-gradient(circle at 85% 10%, rgba(80, 212, 194, 0.12), transparent 18%),
+        radial-gradient(circle at 80% 80%, rgba(122, 167, 255, 0.10), transparent 20%),
+        linear-gradient(180deg, #050b15 0%, var(--bg) 45%, #050a11 100%);
+      font-family: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0));
+    }
+
+    .shell {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.78fr);
+      gap: 24px;
+      min-height: 100vh;
+    }
+
+    .hero, .panel, .chat {
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      border-radius: 30px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -140px auto;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244, 166, 65, 0.18) 0%, rgba(244, 166, 65, 0) 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--accent-2);
+      background: rgba(80, 212, 194, 0.08);
+      border: 1px solid rgba(80, 212, 194, 0.24);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+      line-height: 1.7;
+      max-width: 62ch;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      min-height: 108px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.55rem;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      border: 1px solid rgba(122, 167, 255, 0.2);
+      background: rgba(122, 167, 255, 0.08);
+      color: #d7e2ff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(122, 167, 255, 0.38);
+      background: rgba(122, 167, 255, 0.14);
+    }
+
+    .panel {
+      border-radius: 30px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: calc(100vh - 56px);
+    }
+
+    .panel-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(135deg, rgba(244, 166, 65, 0.08), rgba(80, 212, 194, 0.06));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+    }
+
+    .panel-head .meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .chat {
+      margin: 0 22px 22px;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 460px;
+    }
+
+    .empty-state {
+      border: 1px dashed rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 20px;
+      padding: 20px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .bubble {
+      max-width: 90%;
+      padding: 16px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      white-space: pre-wrap;
+      line-height: 1.65;
+      word-break: break-word;
+    }
+
+    .bubble.user {
+      margin-left: auto;
+      background: linear-gradient(135deg, rgba(122, 167, 255, 0.24), rgba(80, 212, 194, 0.16));
+      border-color: rgba(122, 167, 255, 0.22);
+    }
+
+    .bubble.assistant {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .bubble small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+    }
+
+    .shortlist {
+      padding: 0 22px 20px;
+      display: grid;
+      gap: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .shortlist h3 {
+      margin: 18px 0 2px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .rec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .rec {
+      border-radius: 18px;
+      background: rgba(12, 20, 34, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rec strong {
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    .badge {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      color: #0c1323;
+      background: linear-gradient(135deg, var(--accent), #ffd48c);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .rec a {
+      color: #d7e2ff;
+      text-decoration: none;
+      font-size: 0.88rem;
+      word-break: break-all;
+    }
+
+    .composer {
+      padding: 16px 22px 22px;
+      background: linear-gradient(180deg, rgba(8, 15, 25, 0), rgba(8, 15, 25, 0.45));
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 64px;
+      max-height: 180px;
+      resize: vertical;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      padding: 16px 16px;
+      font: inherit;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      border-color: rgba(80, 212, 194, 0.5);
+      box-shadow: 0 0 0 3px rgba(80, 212, 194, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      color: #091321;
+      background: linear-gradient(135deg, var(--accent), #ffd28d);
+      box-shadow: 0 14px 30px rgba(244, 166, 65, 0.24);
+    }
+
+    .btn.secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .status {
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .status strong {
+      color: #fff;
+    }
+
+    .typing {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.16s; }
+    .dot:nth-child(3) { animation-delay: 0.32s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.45; }
+      40% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    @media (max-width: 1080px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 16px;
+      }
+
+      .hero, .panel {
+        border-radius: 24px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">SHL Assessment Navigator</div>
+      <h1>Grounded assessment recommendations without catalog hallucinations.</h1>
+      <p>
+        This interface talks to the stateless FastAPI service in the project. It clarifies vague asks,
+        recommends SHL assessments, refines shortlists, and compares catalog items using only catalog data.
+      </p>
+
+      <div class="chips" aria-label="Quick prompts">
+        <button class="chip" data-prompt="I need an assessment.">I need an assessment.</button>
+        <button class="chip" data-prompt="Hiring a Java developer who works with stakeholders, mid-level.">Java developer, mid-level</button>
+        <button class="chip" data-prompt="Actually include personality tests.">Add personality tests</button>
+        <button class="chip" data-prompt="OPQ32r vs GSA">Compare OPQ32r vs GSA</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>Stateless</strong>
+          <span>Every call sends the transcript again, so the backend never stores conversation memory.</span>
+        </div>
+        <div class="stat">
+          <strong>Grounded</strong>
+          <span>Recommendations come from the SHL catalog JSON endpoint and cached vector index.</span>
+        </div>
+        <div class="stat">
+          <strong>Dockerized</strong>
+          <span>Ready for container deployment with Gemini, Anthropic, or OpenRouter through env vars.</span>
+        </div>
+        <div class="stat">
+          <strong>PDF report</strong>
+          <span>The implementation report is generated as a polished PDF under the outputs folder.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Conversation</h2>
+          <div class="meta">Use quick prompts or type a custom request below.</div>
+        </div>
+        <div class="meta">API: <strong>/chat</strong></div>
+      </div>
+
+      <div class="chat">
+        <div id="messages" class="messages">
+          <div class="empty-state">
+            Ask for an assessment, then keep refining the shortlist in the same transcript. Examples:
+            personality tests for managers, Java developer assessments, or compare OPQ32r vs GSA.
+          </div>
+        </div>
+
+        <div class="shortlist">
+          <h3>Recommendations</h3>
+          <div id="recs" class="rec-grid"></div>
+        </div>
+
+        <div class="composer">
+          <div class="status" id="status">Ready.</div>
+          <div class="controls">
+            <textarea id="input" placeholder="Type a role, constraint, or comparison..." rows="2"></textarea>
+            <button id="send" class="btn primary">Send</button>
+            <button id="clear" class="btn secondary" type="button">Clear</button>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" type="button" id="copy-transcript">Copy transcript</button>
+            <button class="btn secondary" type="button" id="scroll-bottom">Scroll to latest</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const messages = [];
+    const transcriptEl = document.getElementById('messages');
+    const recsEl = document.getElementById('recs');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+    const clearBtn = document.getElementById('clear');
+    const statusEl = document.getElementById('status');
+    const quickButtons = document.querySelectorAll('[data-prompt]');
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function setStatus(text, busy = false) {
+      statusEl.dataset.status = text;
+      statusEl.innerHTML = busy
+        ? `<span class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span> ${escapeHtml(text)}`
+        : escapeHtml(text);
+      sendBtn.disabled = busy;
+      inputEl.disabled = busy;
+      quickButtons.forEach((btn) => btn.disabled = busy);
+    }
+
+    function clearTranscript() {
+      transcriptEl.innerHTML = '';
+      recsEl.innerHTML = '';
+      messages.length = 0;
+      transcriptEl.innerHTML = `
+        <div class="empty-state">
+          Ask for an assessment, then keep refining the shortlist in the same transcript. Examples:
+          personality tests for managers, Java developer assessments, or compare OPQ32r vs GSA.
+        </div>`;
+      setStatus('Ready.');
+    }
+
+    function removeEmptyState() {
+      const empty = transcriptEl.querySelector('.empty-state');
+      if (empty) {
+        empty.remove();
+      }
+    }
+
+    function appendBubble(role, text) {
+      removeEmptyState();
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${role}`;
+      const label = document.createElement('small');
+      label.textContent = role === 'user' ? 'You' : 'Assistant';
+      const body = document.createElement('div');
+      body.textContent = text;
+      bubble.appendChild(label);
+      bubble.appendChild(body);
+      transcriptEl.appendChild(bubble);
+      transcriptEl.scrollTop = transcriptEl.scrollHeight;
+    }
+
+    function renderRecommendations(items) {
+      recsEl.innerHTML = '';
+      if (!items.length) {
+        recsEl.innerHTML = '<div class="empty-state">No recommendations yet. Once the assistant has enough context, the shortlist appears here.</div>';
+        return;
+      }
+      items.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'rec';
+        card.innerHTML = `
+          <div class="badge">${escapeHtml(item.test_type)}</div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.url)}</a>
+        `;
+        recsEl.appendChild(card);
+      });
+    }
+
+    async function submitPrompt(prompt) {
+      const text = (prompt || inputEl.value).trim();
+      if (!text) return;
+
+      inputEl.value = '';
+      messages.push({ role: 'user', content: text });
+      appendBubble('user', text);
+      setStatus('Thinking...', true);
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages }),
+        });
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+        messages.push({ role: 'assistant', content: data.reply });
+        appendBubble('assistant', data.reply);
+        renderRecommendations(data.recommendations || []);
+        setStatus(data.end_of_conversation ? 'Conversation complete. Refine anytime with another turn.' : 'Ready for the next clarification.');
+      } catch (error) {
+        console.error(error);
+        setStatus('The chat endpoint is unavailable right now.');
+        appendBubble('assistant', 'I could not reach the chat service. Check the backend logs and try again.');
+      } finally {
+        setStatus(statusEl.dataset.status || 'Ready.', false);
+      }
+    }
+
+    quickButtons.forEach((button) => {
+      button.addEventListener('click', () => submitPrompt(button.dataset.prompt));
+    });
+
+    sendBtn.addEventListener('click', () => submitPrompt());
+    clearBtn.addEventListener('click', clearTranscript);
+    document.getElementById('copy-transcript').addEventListener('click', async () => {
+      const transcript = messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+      await navigator.clipboard.writeText(transcript || '');
+      setStatus('Transcript copied to clipboard.');
+      setTimeout(() => setStatus('Ready.'), 1200);
+    });
+    document.getElementById('scroll-bottom').addEventListener('click', () => {
+      transcriptEl.scrollTop = transcriptEl.scrollHeight;
+    });
+    inputEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        submitPrompt();
+      }
+    });
+
+    renderRecommendations([]);
+  </script>
+</body>
+</html>
